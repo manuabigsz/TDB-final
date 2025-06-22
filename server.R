@@ -135,10 +135,34 @@ shinyServer(function(input, output, session) {
       )
   })
   
+  output$barPlot <- renderPlot({
+    ggplot(sf_data) +
+      geom_bar(aes(x = bacia, fill = bacia), show.legend = FALSE) +
+      labs(title = "Quantidade de UPG por Bacia",
+           x = "Bacia",
+           y = "Quantidade") +
+      theme_minimal() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  })
+  
+  output$sfTable <- DT::renderDataTable({
+    sf_df <- st_drop_geometry(sf_data)[, c("gid", "bacia", "upg", "id_balanco")]
+    
+    DT::datatable(sf_df, 
+                  options = list(pageLength = 10, scrollX = TRUE),
+                  rownames = FALSE)
+  })
+  
+  
+
+  
+  
+  
+  
   output$raster_map <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
-      setView(lng = -51.1, lat = -28.2, zoom = 8) %>%  # Centrando em Passo Fundo, RS
+      setView(lng = -51.1, lat = -28.2, zoom = 8) %>%
       addProviderTiles(providers$OpenStreetMap, group = "OpenStreetMap") %>%
       addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
       addLayersControl(
@@ -348,3 +372,4 @@ shinyServer(function(input, output, session) {
   })
   
 })
+

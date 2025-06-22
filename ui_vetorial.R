@@ -13,20 +13,28 @@ vetorial_tab <- tabPanel("Vetorial",
                            ),
                            
                            mainPanel(
-                             h3("Mapa das Unidades de Balanço Hídrico"),
-                             div(
-                               style = "overflow-x: auto; overflow-y: auto; height: 700px; border: 1px solid #ccc;",
-                               plotOutput("mapPlot", 
-                                          height = "700px",
-                                          click = "plot_click") 
+                             h3("Visualização das Unidades de Balanço Hídrico"),
+                             tabsetPanel(
+                               tabPanel("Mapa Vetorial", 
+                                        plotOutput("mapPlot", height = "700px")),
+                               
+                               tabPanel("Gráfico", 
+                                        plotOutput("barPlot", height = "400px")),
+                               
+                               tabPanel("Tabela", 
+                                        DT::dataTableOutput("sfTable"))
                              )
                            )
+                           
+                           
                          ),
+                       
                          div(
                            style = "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
            color: white; padding: 30px; border-radius: 15px; margin: 30px auto; max-width: 100%;",
                            
                            h4("Balanço Hídrico RS", style = "margin-top: 0;"),
+                           
                            
                            h5("Sobre a base de dados vetorial utilizada:", style = "color: #f1f1f1;"),
                            

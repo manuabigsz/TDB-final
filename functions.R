@@ -7,7 +7,7 @@ load_balanco_hidrico <- function() {
   con <- dbConnect(RPostgres::Postgres(),
                    user = "postgres",
                    password = "senha",
-                   dbname = "tdb_final",
+                   dbname = "trab_final_tdb",
                    host = "localhost",
                    port = 5432)
   
@@ -34,7 +34,7 @@ load_raster_metadata <- function() {
   con <- dbConnect(RPostgres::Postgres(),
                    user = "postgres",
                    password = "senha",
-                   dbname = "tdb_final",
+                   dbname = "trab_final_tdb",
                    host = "localhost",
                    port = 5432)
   
@@ -57,7 +57,7 @@ load_raster_data <- function(raster_id) {
   con <- dbConnect(RPostgres::Postgres(),
                    user = "postgres",
                    password = "senha",
-                   dbname = "tdb_final",
+                   dbname = "trab_final_tdb",
                    host = "localhost",
                    port = 5432)
   
@@ -82,7 +82,7 @@ get_raster_info <- function(raster_id) {
   con <- dbConnect(RPostgres::Postgres(),
                    user = "postgres",
                    password = "senha",
-                   dbname = "tdb_final",
+                   dbname = "trab_final_tdb",
                    host = "localhost",
                    port = 5432)
   
