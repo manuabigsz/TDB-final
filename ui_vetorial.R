@@ -7,16 +7,20 @@ vetorial_tab <- tabPanel("Vetorial",
                                                      "UPG" = "upg", 
                                                      "ID Balanço" = "id_balanco"), 
                                          selected = "bacia"),
+                             uiOutput("upgSelectUI"), 
                              hr(),
                              h4("Informações da Região"),
                              uiOutput("clickInfo")
+                             
+                           
                            ),
+                           
                            
                            mainPanel(
                              h3("Visualização das Unidades de Balanço Hídrico"),
                              tabsetPanel(
                                tabPanel("Mapa Vetorial", 
-                                        plotOutput("mapPlot", height = "700px")),
+                                        leafletOutput("mapPlot", height = "700px")),
                                
                                tabPanel("Gráfico", 
                                         plotOutput("barPlot", height = "400px")),
@@ -28,6 +32,7 @@ vetorial_tab <- tabPanel("Vetorial",
                            
                            
                          ),
+                        
                        
                          div(
                            style = "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

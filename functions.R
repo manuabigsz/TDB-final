@@ -1,16 +1,23 @@
 library(DBI)
 library(RPostgres)
 library(sf)
+library(raster)
+
+conn <- dbConnect(
+  RPostgres::Postgres(),
+  user = "postgres",
+  password = "senha",
+  dbname = "tdb_final",
+  host = "localhost",
+  port = 5432
+)
+
+onStop(function() {
+  if (dbIsValid(conn)) dbDisconnect(conn)
+})
+
 
 load_balanco_hidrico <- function() {
-  
-  con <- dbConnect(RPostgres::Postgres(),
-                   user = "postgres",
-                   password = "senha",
-                   dbname = "trab_final_tdb",
-                   host = "localhost",
-                   port = 5432)
-  
   query <- "
     SELECT 
       gid,
@@ -21,89 +28,37 @@ load_balanco_hidrico <- function() {
     FROM public.unidades_balanco_hidrico
   "
   
-  sf_data <- st_read(con, query = query)
-  
-  dbDisconnect(con)
-  sf_data <- st_zm(sf_data, drop = TRUE, what = "ZM")
-  
+  sf_data <- st_read(conn, query = query)  # usa conn global
+  sf_data <- st_zm(sf_data, drop = TRUE, what = "ZM")  # remove Z/M
   
   return(sf_data)
 }
 
-load_raster_metadata <- function() {
-  con <- dbConnect(RPostgres::Postgres(),
-                   user = "postgres",
-                   password = "senha",
-                   dbname = "trab_final_tdb",
-                   host = "localhost",
-                   port = 5432)
-  
-  query <- "
-    SELECT 
-      id,
-      date,
-      filename
-    FROM public.raster_data
-    ORDER BY date DESC
-  "
-  
-  df <- dbGetQuery(con, query)
-  dbDisconnect(con)
-  
-  return(df)
+load_raster_files <- function() {
+  dbGetQuery(conn, "SELECT id, filename FROM raster_data ORDER BY date DESC")
 }
 
-load_raster_data <- function(raster_id) {
-  con <- dbConnect(RPostgres::Postgres(),
-                   user = "postgres",
-                   password = "senha",
-                   dbname = "trab_final_tdb",
-                   host = "localhost",
-                   port = 5432)
-  
+load_raster_by_id <- function(id) {
   query <- paste0("
-    SELECT 
-      id,
-      date,
-      filename,
-      ST_AsGDALRaster(rast, 'GTiff') as raster_data,
-      ST_Envelope(rast) as bbox,
-      ST_SRID(rast) as srid
-    FROM public.raster_data 
-    WHERE id = ", raster_id)
+    SELECT ST_AsGDALRaster(rast, 'GTiff') AS rast_bin 
+    FROM raster_data 
+    WHERE id = ", id)
   
-  result <- dbGetQuery(con, query)
-  dbDisconnect(con)
+  res <- dbSendQuery(conn, query)
+  on.exit(dbClearResult(res), add = TRUE)
   
-  return(result)
+  bin_result <- dbFetch(res)
+  
+  if (nrow(bin_result) == 0 || !is.raw(bin_result$rast_bin[[1]])) {
+    stop("O raster retornado está vazio ou inválido.")
+  }
+  
+  temp_file <- tempfile(fileext = ".tif")
+  writeBin(bin_result$rast_bin[[1]], temp_file)
+  
+  raster::raster(temp_file)
 }
 
-get_raster_info <- function(raster_id) {
-  con <- dbConnect(RPostgres::Postgres(),
-                   user = "postgres",
-                   password = "senha",
-                   dbname = "trab_final_tdb",
-                   host = "localhost",
-                   port = 5432)
-  
-  query <- paste0("
-    SELECT 
-      id,
-      date,
-      filename,
-      ST_Width(rast) as width,
-      ST_Height(rast) as height,
-      ST_NumBands(rast) as num_bands,
-      ST_SRID(rast) as srid,
-      ST_AsText(ST_Envelope(rast)) as bbox_wkt
-    FROM public.raster_data 
-    WHERE id = ", raster_id)
-  
-  result <- dbGetQuery(con, query)
-  dbDisconnect(con)
-  
-  return(result)
+`%||%` <- function(x, y) {
+  if (is.null(x) || length(x) == 0 || is.na(x)) y else x
 }
-
-
-`%||%` <- function(x, y) if (is.null(x) || length(x) == 0 || is.na(x)) y else x
