@@ -1,3 +1,4 @@
+library(leaflet)
 vetorialServer <- function(input, output, session) {
   
   sf_data <- load_balanco_hidrico() 

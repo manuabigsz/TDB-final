@@ -28,8 +28,8 @@ load_balanco_hidrico <- function() {
     FROM public.unidades_balanco_hidrico
   "
   
-  sf_data <- st_read(conn, query = query)  # usa conn global
-  sf_data <- st_zm(sf_data, drop = TRUE, what = "ZM")  # remove Z/M
+  sf_data <- st_read(conn, query = query)  
+  sf_data <- st_zm(sf_data, drop = TRUE, what = "ZM")  
   
   return(sf_data)
 }

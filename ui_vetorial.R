@@ -1,3 +1,8 @@
+library(shiny)
+library(leaflet)
+library(DT)
+library(plotly)
+
 vetorial_tab <- tabPanel("Vetorial",
                          sidebarLayout(
                            sidebarPanel(

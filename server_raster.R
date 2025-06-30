@@ -1,3 +1,4 @@
+library(leaflet)
 rasterServer <- function(input, output, session) {
   
   observe({
